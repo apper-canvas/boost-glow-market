@@ -31,7 +31,7 @@ const ProductFilters = ({
     priceMax: "",
     inStock: false,
     tags: [],
-    sortBy: "rating",
+sortBy: "rating",
     ...filters
   });
 
@@ -41,7 +41,7 @@ const ProductFilters = ({
     "long-wear", "natural", "paraben-free"
   ];
 
-  useEffect(() => {
+useEffect(() => {
     loadData();
   }, []);
 

@@ -17,7 +17,8 @@ const CategoryPage = () => {
   const [category, setCategory] = useState(null);
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+const [loading, setLoading] = useState(true);
+  const [filterLoading, setFilterLoading] = useState(false);
   const [error, setError] = useState("");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [filters, setFilters] = useState({
@@ -35,13 +36,13 @@ useEffect(() => {
     loadCategoryAndProducts();
   }, [categorySlug]);
 
-  useEffect(() => {
+useEffect(() => {
     if (products.length > 0) {
       applyFilters();
     }
-  }, [products, filters, categorySlug]);
+  }, [products, filters]);
 
-  const loadCategoryAndProducts = async () => {
+const loadCategoryAndProducts = async () => {
     try {
       setLoading(true);
       setError("");
@@ -59,8 +60,18 @@ useEffect(() => {
       setCategory(categoryData);
       setProducts(productsData);
       
-      // Update filters with current category
-      setFilters(prev => ({ ...prev, category: categorySlug }));
+      // Initialize filters with current category - products are already filtered by category from API
+      setFilters(prev => ({ 
+        ...prev, 
+        category: categorySlug,
+        subcategory: "",
+        brand: [],
+        priceMin: "",
+        priceMax: "",
+        inStock: false,
+        tags: [],
+        sortBy: "rating"
+      }));
     } catch (err) {
       setError("Failed to load category products");
     } finally {
@@ -75,13 +86,9 @@ const applyFilters = async () => {
     }
 
     try {
-      // Apply filters to products
+      setFilterLoading(true);
+      // Apply filters to products - products are already filtered by category from API
       let filtered = [...products];
-
-      // Filter by category
-      if (filters.category) {
-        filtered = filtered.filter(p => p.category === filters.category);
-      }
 
       // Filter by subcategory
       if (filters.subcategory) {
@@ -109,7 +116,7 @@ const applyFilters = async () => {
       // Filter by tags
       if (filters.tags && filters.tags.length > 0) {
         filtered = filtered.filter(p => 
-          filters.tags.some(tag => p.tags.includes(tag))
+          filters.tags.some(tag => p.tags && p.tags.includes(tag))
         );
       }
 
@@ -123,13 +130,13 @@ const applyFilters = async () => {
             filtered.sort((a, b) => (b.salePrice || b.price) - (a.salePrice || a.price));
             break;
           case "rating":
-            filtered.sort((a, b) => b.rating - a.rating);
+            filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
             break;
           case "newest":
-            filtered.sort((a, b) => b.Id - a.Id);
+            filtered.sort((a, b) => (b.Id || 0) - (a.Id || 0));
             break;
           default:
-            filtered.sort((a, b) => b.rating - a.rating);
+            filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
         }
       }
 
@@ -137,6 +144,8 @@ const applyFilters = async () => {
     } catch (error) {
       console.error("Error filtering products:", error);
       setFilteredProducts(products);
+    } finally {
+      setFilterLoading(false);
     }
   };
 
@@ -148,7 +157,7 @@ const applyFilters = async () => {
     setShowMobileFilters(!showMobileFilters);
   };
 
-  if (loading) return <Loading type="grid" />;
+if (loading) return <Loading type="grid" />;
   
   if (error) {
     return (
@@ -234,13 +243,15 @@ const applyFilters = async () => {
               </p>
             </div>
 
-            {filteredProducts.length === 0 ? (
+{filterLoading ? (
+              <Loading type="grid" />
+            ) : filteredProducts.length === 0 ? (
               <Empty
                 icon="Package"
                 title="No products found"
                 message="Try adjusting your filters to find what you're looking for."
                 actionLabel="Clear Filters"
-onAction={() => setFilters({
+                onAction={() => setFilters({
                   category: categorySlug || "",
                   subcategory: "",
                   brand: [],
