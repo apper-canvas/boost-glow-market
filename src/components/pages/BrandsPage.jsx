@@ -1,23 +1,23 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { toast } from 'react-toastify';
-import Button from '@/components/atoms/Button';
-import ProductGrid from '@/components/organisms/ProductGrid';
-import Loading from '@/components/ui/Loading';
-import Error from '@/components/ui/Error';
-import Empty from '@/components/ui/Empty';
-import productService from '@/services/api/productService';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { toast } from "react-toastify";
+import productService from "@/services/api/productService";
+import Button from "@/components/atoms/Button";
+import ProductGrid from "@/components/organisms/ProductGrid";
+import Error from "@/components/ui/Error";
+import Empty from "@/components/ui/Empty";
+import Loading from "@/components/ui/Loading";
 
 const BrandsPage = () => {
   const navigate = useNavigate();
-  const [brands, setBrands] = useState([]);
-  const [selectedBrand, setSelectedBrand] = useState(null);
-  const [brandProducts, setBrandProducts] = useState([]);
+const [brands, setBrands] = useState([]);
+  const [brandProducts, setBrandProducts] = useState({});
+  const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [productsLoading, setProductsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
+const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     loadBrands();
@@ -32,6 +32,11 @@ const BrandsPage = () => {
       const products = await productService.getAll();
       const brandMap = {};
       
+setAllProducts(products);
+      
+      // Group products by brand for later use
+      const productsByBrand = {};
+      
       products.forEach(product => {
         if (!brandMap[product.brand]) {
           brandMap[product.brand] = {
@@ -42,7 +47,15 @@ const BrandsPage = () => {
         }
         brandMap[product.brand].productCount += 1;
         brandMap[product.brand].products.push(product);
+        
+        // Also group for productsByBrand state
+        if (!productsByBrand[product.brand]) {
+          productsByBrand[product.brand] = [];
+        }
+        productsByBrand[product.brand].push(product);
       });
+      
+      setBrandProducts(productsByBrand);
       
       const brandsArray = Object.values(brandMap).sort((a, b) => 
         b.productCount - a.productCount
@@ -57,29 +70,23 @@ const BrandsPage = () => {
     }
   };
 
-  const handleBrandSelect = async (brand) => {
-    try {
-      setProductsLoading(true);
-      setSelectedBrand(brand);
-      setBrandProducts(brand.products);
-      
-      // Scroll to products section
-      document.getElementById('brand-products')?.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start'
-      });
-    } catch (err) {
-      toast.error('Failed to load brand products');
-      setBrandProducts([]);
-    } finally {
-      setProductsLoading(false);
+// Filter products based on search term
+  const filteredProducts = allProducts.filter(product =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    product.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    product.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  
+  // Group filtered products by brand
+  const filteredBrandProducts = {};
+  filteredProducts.forEach(product => {
+    if (!filteredBrandProducts[product.brand]) {
+      filteredBrandProducts[product.brand] = [];
     }
-  };
+    filteredBrandProducts[product.brand].push(product);
+  });
 
-  const clearSelection = () => {
-    setSelectedBrand(null);
-    setBrandProducts([]);
-  };
+const displayBrandProducts = searchTerm ? filteredBrandProducts : brandProducts;
 
   const filteredBrands = brands.filter(brand =>
     brand.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -154,12 +161,7 @@ const BrandsPage = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.05 }}
-                  className={`group cursor-pointer ${
-                    selectedBrand?.name === brand.name
-                      ? 'ring-2 ring-primary'
-                      : ''
-                  }`}
-                  onClick={() => handleBrandSelect(brand)}
+className="group"
                 >
                   <div className="bg-surface rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300 p-6 text-center">
                     <div className="w-16 h-16 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:from-primary/20 group-hover:to-accent/20 transition-colors duration-300">
@@ -173,57 +175,44 @@ const BrandsPage = () => {
                     <p className="text-gray-500 font-body text-sm mb-4">
                       {brand.productCount} product{brand.productCount !== 1 ? 's' : ''}
                     </p>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="group-hover:bg-primary group-hover:text-white group-hover:border-primary w-full"
-                    >
-                      View Products
-                    </Button>
+<div className="text-center p-4 bg-gradient-to-r from-primary/5 to-accent/5 rounded-lg">
+                      <p className="text-sm text-gray-600 font-medium">
+                        {displayBrandProducts[brand.name]?.length || 0} Product{(displayBrandProducts[brand.name]?.length || 0) !== 1 ? 's' : ''}
+                      </p>
+                    </div>
                   </div>
-                </motion.div>
+</motion.div>
+                
+                {/* Products for this brand */}
+                {displayBrandProducts[brand.name] && displayBrandProducts[brand.name].length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 + 0.2 }}
+                    className="mt-6"
+                  >
+                    <ProductGrid 
+                      products={displayBrandProducts[brand.name]}
+                      title={`${brand.name} Products`}
+                      className="mb-8"
+                    />
+                  </motion.div>
+                )}
               ))}
             </div>
           )}
         </section>
 
-        {/* Selected Brand Products */}
-        {selectedBrand && (
-          <section id="brand-products" className="mb-16">
-            <div className="bg-gradient-to-r from-primary/5 to-accent/5 rounded-2xl p-8 mb-8">
-              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-                <div>
-                  <h3 className="font-display text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
-                    {selectedBrand.name}
-                  </h3>
-                  <p className="text-gray-600 font-body text-lg">
-                    Showing {selectedBrand.productCount} product{selectedBrand.productCount !== 1 ? 's' : ''} from {selectedBrand.name}
-                  </p>
-                </div>
-                <Button
-                  variant="outline"
-                  onClick={clearSelection}
-                  className="shrink-0"
-                >
-                  Clear Selection
-                </Button>
-              </div>
-            </div>
-
-            {productsLoading ? (
-              <Loading type="grid" />
-            ) : brandProducts.length === 0 ? (
-              <Empty
-                title="No Products Found"
-                message={`${selectedBrand.name} doesn't have any products available.`}
-              />
-            ) : (
-              <ProductGrid 
-                products={brandProducts}
-                title={`${selectedBrand.name} Products`}
-              />
-            )}
-          </section>
+{/* Search Results Summary */}
+        {searchTerm && (
+          <div className="mb-8 p-4 bg-gradient-to-r from-primary/5 to-accent/5 rounded-xl">
+            <p className="text-gray-700 font-medium">
+              {filteredProducts.length > 0 
+                ? `Found ${filteredProducts.length} product${filteredProducts.length !== 1 ? 's' : ''} matching "${searchTerm}"`
+                : `No products found matching "${searchTerm}"`
+              }
+            </p>
+          </div>
         )}
 
         {/* Brand Statistics */}
