@@ -68,9 +68,71 @@ useEffect(() => {
     }
   };
 
-  const applyFilters = async () => {
+const applyFilters = async () => {
+    if (products.length === 0) {
+      setFilteredProducts([]);
+      return;
+    }
+
     try {
-      const filtered = await productService.filterProducts(filters);
+      // Apply filters to products
+      let filtered = [...products];
+
+      // Filter by category
+      if (filters.category) {
+        filtered = filtered.filter(p => p.category === filters.category);
+      }
+
+      // Filter by subcategory
+      if (filters.subcategory) {
+        filtered = filtered.filter(p => p.subcategory === filters.subcategory);
+      }
+
+      // Filter by brand
+      if (filters.brand && filters.brand.length > 0) {
+        filtered = filtered.filter(p => filters.brand.includes(p.brand));
+      }
+
+      // Filter by price range
+      if (filters.priceMin !== undefined && filters.priceMin !== "") {
+        filtered = filtered.filter(p => (p.salePrice || p.price) >= parseFloat(filters.priceMin));
+      }
+      if (filters.priceMax !== undefined && filters.priceMax !== "") {
+        filtered = filtered.filter(p => (p.salePrice || p.price) <= parseFloat(filters.priceMax));
+      }
+
+      // Filter by in stock
+      if (filters.inStock) {
+        filtered = filtered.filter(p => p.inStock);
+      }
+
+      // Filter by tags
+      if (filters.tags && filters.tags.length > 0) {
+        filtered = filtered.filter(p => 
+          filters.tags.some(tag => p.tags.includes(tag))
+        );
+      }
+
+      // Sort results
+      if (filters.sortBy) {
+        switch (filters.sortBy) {
+          case "price-low":
+            filtered.sort((a, b) => (a.salePrice || a.price) - (b.salePrice || b.price));
+            break;
+          case "price-high":
+            filtered.sort((a, b) => (b.salePrice || b.price) - (a.salePrice || a.price));
+            break;
+          case "rating":
+            filtered.sort((a, b) => b.rating - a.rating);
+            break;
+          case "newest":
+            filtered.sort((a, b) => b.Id - a.Id);
+            break;
+          default:
+            filtered.sort((a, b) => b.rating - a.rating);
+        }
+      }
+
       setFilteredProducts(filtered);
     } catch (error) {
       console.error("Error filtering products:", error);
