@@ -31,13 +31,15 @@ const CategoryPage = () => {
     sortBy: "rating"
   });
 
-  useEffect(() => {
+useEffect(() => {
     loadCategoryAndProducts();
   }, [categorySlug]);
 
   useEffect(() => {
-    applyFilters();
-  }, [products, filters]);
+    if (products.length > 0) {
+      applyFilters();
+    }
+  }, [products, filters, categorySlug]);
 
   const loadCategoryAndProducts = async () => {
     try {
