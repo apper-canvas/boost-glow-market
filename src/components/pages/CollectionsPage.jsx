@@ -39,12 +39,12 @@ const CollectionsPage = () => {
     }
   };
 
-  const handleCollectionSelect = async (collection) => {
+const handleCollectionSelect = async (collection) => {
     try {
       setProductsLoading(true);
       setSelectedCollection(collection);
       
-      const products = await productService.getByIds(collection.productIds);
+      const products = await collectionService.getCollectionProducts(collection.Id);
       setCollectionProducts(products);
       
       // Scroll to products section
