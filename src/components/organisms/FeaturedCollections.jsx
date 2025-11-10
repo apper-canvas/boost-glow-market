@@ -64,9 +64,9 @@ const FeaturedCollections = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              whileHover={{ scale: 1.02 }}
+whileHover={{ scale: 1.02 }}
               className="relative overflow-hidden rounded-2xl cursor-pointer group"
-              onClick={() => navigate(`/collection/${collection.slug}`)}
+              onClick={() => navigate(`/collections/${collection.slug}`)}
             >
               <div className="aspect-[4/3] lg:aspect-[3/2]">
                 <img
