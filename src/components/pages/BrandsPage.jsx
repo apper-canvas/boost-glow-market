@@ -153,7 +153,7 @@ const displayBrandProducts = searchTerm ? filteredBrandProducts : brandProducts;
               message={searchTerm ? `No brands match "${searchTerm}"` : "We're working on adding more brands. Check back soon!"}
             />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+<div className="space-y-12">
               {filteredBrands.map((brand, index) => (
                 <motion.div
                   key={brand.name}
@@ -161,9 +161,9 @@ const displayBrandProducts = searchTerm ? filteredBrandProducts : brandProducts;
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.05 }}
-className="group"
+                  className="group"
                 >
-                  <div className="bg-surface rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300 p-6 text-center">
+                  <div className="bg-surface rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300 p-6 text-center mb-6">
                     <div className="w-16 h-16 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:from-primary/20 group-hover:to-accent/20 transition-colors duration-300">
                       <span className="font-display text-2xl font-bold text-primary group-hover:scale-110 transition-transform duration-300">
                         {brand.name.charAt(0)}
@@ -175,29 +175,27 @@ className="group"
                     <p className="text-gray-500 font-body text-sm mb-4">
                       {brand.productCount} product{brand.productCount !== 1 ? 's' : ''}
                     </p>
-<div className="text-center p-4 bg-gradient-to-r from-primary/5 to-accent/5 rounded-lg">
+                    <div className="text-center p-4 bg-gradient-to-r from-primary/5 to-accent/5 rounded-lg">
                       <p className="text-sm text-gray-600 font-medium">
                         {displayBrandProducts[brand.name]?.length || 0} Product{(displayBrandProducts[brand.name]?.length || 0) !== 1 ? 's' : ''}
                       </p>
                     </div>
                   </div>
-</motion.div>
-                
-                {/* Products for this brand */}
-                {displayBrandProducts[brand.name] && displayBrandProducts[brand.name].length > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 + 0.2 }}
-                    className="mt-6"
-                  >
-                    <ProductGrid 
-                      products={displayBrandProducts[brand.name]}
-                      title={`${brand.name} Products`}
-                      className="mb-8"
-                    />
-                  </motion.div>
-                )}
+                  {/* Products for this brand */}
+                  {displayBrandProducts[brand.name] && displayBrandProducts[brand.name].length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 + 0.2 }}
+                    >
+                      <ProductGrid 
+                        products={displayBrandProducts[brand.name]}
+                        title={`${brand.name} Products`}
+                        className="mb-8"
+                      />
+                    </motion.div>
+                  )}
+                </motion.div>
               ))}
             </div>
           )}
