@@ -178,7 +178,7 @@ useEffect(() => {
                 title="No products found"
                 message="Try adjusting your filters to find what you're looking for."
                 actionLabel="Clear Filters"
-                onAction={() => setFilters({
+onAction={() => setFilters({
                   category: categorySlug || "",
                   subcategory: "",
                   brand: [],

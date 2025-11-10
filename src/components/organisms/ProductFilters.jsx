@@ -92,8 +92,8 @@ const ProductFilters = ({
   };
 
   const clearFilters = () => {
-    const clearedFilters = {
-      category: "",
+const clearedFilters = {
+      category: filters.category || "",
       subcategory: "",
       brand: [],
       priceMin: "",

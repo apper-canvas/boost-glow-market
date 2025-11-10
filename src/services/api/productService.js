@@ -61,8 +61,8 @@ const productService = {
     await delay(300);
     let filtered = [...productsData];
 
-    // Filter by category
-    if (filters.category) {
+// Filter by category
+    if (filters.category && filters.category.trim() !== "") {
       filtered = filtered.filter(p => p.category === filters.category);
     }
 
