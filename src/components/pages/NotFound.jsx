@@ -27,9 +27,9 @@ function NotFound() {
           </p>
           
           <div className="space-y-4">
-            <Button size="lg" onClick={() => navigate("/")}>
+<Button size="lg" onClick={() => navigate("/collections")}>
               <ApperIcon name="Home" className="w-5 h-5 mr-2" />
-              Go Home
+              Browse Collections
             </Button>
             
             <div className="flex justify-center">
@@ -48,8 +48,8 @@ function NotFound() {
               <Button variant="outline" size="sm" onClick={() => navigate("/search")}>
                 Search Products
               </Button>
-              <Button variant="outline" size="sm" onClick={() => navigate("/")}>
-                Browse Categories
+<Button variant="outline" size="sm" onClick={() => navigate("/collections")}>
+                Browse Collections
               </Button>
             </div>
           </div>
