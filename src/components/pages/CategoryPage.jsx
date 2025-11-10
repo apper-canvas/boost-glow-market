@@ -68,9 +68,9 @@ useEffect(() => {
     }
   };
 
-const applyFilters = async () => {
+  const applyFilters = async () => {
     try {
-      const filtered = await productService.getFiltered(filters);
+      const filtered = await productService.filterProducts(filters);
       setFilteredProducts(filtered);
     } catch (error) {
       console.error("Error filtering products:", error);
