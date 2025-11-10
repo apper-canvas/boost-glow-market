@@ -6,6 +6,8 @@ import Layout from "@/components/organisms/Layout";
 const Home = lazy(() => import("@/components/pages/Home"));
 const ProductPage = lazy(() => import("@/components/pages/ProductPage"));
 const CategoryPage = lazy(() => import("@/components/pages/CategoryPage"));
+const CollectionsPage = lazy(() => import("@/components/pages/CollectionsPage"));
+const BrandsPage = lazy(() => import("@/components/pages/BrandsPage"));
 const SearchPage = lazy(() => import("@/components/pages/SearchPage"));
 const CheckoutPage = lazy(() => import("@/components/pages/CheckoutPage"));
 const NotFound = lazy(() => import("@/components/pages/NotFound"));
@@ -46,6 +48,22 @@ const mainRoutes = [
     element: (
       <Suspense fallback={<LoadingFallback />}>
         <CategoryPage />
+      </Suspense>
+    )
+},
+  {
+    path: "collections",
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <CollectionsPage />
+      </Suspense>
+    )
+  },
+  {
+    path: "brands",
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <BrandsPage />
       </Suspense>
     )
   },
