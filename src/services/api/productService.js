@@ -20,6 +20,15 @@ const productService = {
     return productsData.filter(p => p.category === category).map(p => ({ ...p }));
   },
 
+  async getByCategorySlug(categorySlug) {
+    await delay(200);
+    const filtered = productsData.filter(product => {
+      return product.category.toLowerCase() === categorySlug.toLowerCase() ||
+             product.category.toLowerCase().replace(/\s+/g, '-') === categorySlug.toLowerCase();
+    });
+    return filtered.map(product => ({ ...product }));
+  },
+
   async getBySubcategory(subcategory) {
     await delay(250);
     return productsData.filter(p => p.subcategory === subcategory).map(p => ({ ...p }));
@@ -57,11 +66,11 @@ const productService = {
       .map(p => ({ ...p }));
   },
 
-  async filterProducts(filters = {}) {
+  async getFiltered(filters = {}) {
     await delay(300);
     let filtered = [...productsData];
 
-// Filter by category
+    // Filter by category
     if (filters.category && filters.category.trim() !== "") {
       filtered = filtered.filter(p => p.category === filters.category);
     }
